@@ -1,0 +1,6 @@
+# 配布物には含めない（ローカル生成物）
+node_modules/
+quiz-*.html
+DESIGN-*.md
+!references/samples/DESIGN-*.md
+!references/templates/DESIGN-template*.md

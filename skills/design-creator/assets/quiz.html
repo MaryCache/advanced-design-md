@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>design-creator Quiz</title>
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #181a22;
+    --surface-2: #21242e;
+    --border: #2a2e3a;
+    --text: #e8eaef;
+    --text-dim: #8a90a0;
+    --accent: #af6681;
+    --accent-2: #c4a28b;
+    --ok: #6ec6a7;
+    --warn: #e0a948;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Noto Sans JP", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(14, 15, 20, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    font-size: 14px;
+    margin: 0;
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  header h1 strong { color: var(--text); font-weight: 700; }
+  .controls { display: flex; gap: 8px; align-items: center; }
+  .controls select, .controls button {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .controls button:hover { border-color: var(--accent); }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 24px 120px; }
+  .intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+  .intro h2 { font-size: 18px; margin: 0 0 8px; }
+  .intro p { margin: 4px 0; color: var(--text-dim); font-size: 14px; }
+  .intro .hint { color: var(--accent-2); font-size: 13px; margin-top: 12px; }
+  .question {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .question .q-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .q-meta .layer-tag {
+    background: var(--surface-2);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .q-meta .qid { color: var(--accent); }
+  .question .prompt { font-size: 17px; font-weight: 600; margin-bottom: 16px; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option input { margin-top: 4px; accent-color: var(--accent); }
+  .option label { flex: 1; cursor: pointer; font-size: 14px; }
+  .option.checked { border-color: var(--accent); background: rgba(175, 102, 129, 0.08); }
+  .option .freetext-input {
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 60px;
+  }
+  .option .hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .q-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+  .ai-consult {
+    background: transparent;
+    color: var(--accent-2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .ai-consult:hover { border-color: var(--accent-2); background: rgba(196, 162, 139, 0.08); }
+  .free-note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .free-note label { display: block; font-weight: 600; margin-bottom: 8px; }
+  .free-note textarea {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+  }
+  .submit-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(14, 15, 20, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress { font-size: 13px; color: var(--text-dim); }
+  .progress strong { color: var(--text); }
+  .submit {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s ease;
+  }
+  .submit:hover { opacity: 0.85; }
+  .submit:disabled { opacity: 0.4; cursor: not-allowed; }
+  .output {
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--ok);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .output h2 { margin: 0 0 12px; font-size: 16px; color: var(--ok); }
+  .output textarea {
+    width: 100%;
+    min-height: 320px;
+    padding: 12px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .output .copied {
+    color: var(--ok);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  .toast {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1><strong>design-creator</strong> — quiz</h1>
+  <div class="controls">
+    <label style="font-size:12px;color:var(--text-dim)">volume</label>
+    <select id="volume-select">
+      <option value="quick">Quick (5)</option>
+      <option value="standard" selected>Standard (10)</option>
+      <option value="deep">Deep (20)</option>
+    </select>
+    <select id="lang-select">
+      <option value="ja" selected>日本語</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <h2 id="intro-title">設問に答えていくと、最後に Claude に渡す自然文プロンプトが生成されるよ</h2>
+    <p id="intro-body">迷ったら各設問の「AI に相談」ボタンで Claude に壁打ちできる。「その他（自由入力）」も使ってOK。</p>
+    <p class="hint" id="intro-hint">回答が完了したら、ページ下部の「完了 → プロンプト生成」を押してね。</p>
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="free-note">
+    <label id="free-note-label">補足（自由記述・任意）</label>
+    <textarea id="free-note" placeholder="設問に収まらない要望・参考サイト名・避けたい表現など"></textarea>
+  </div>
+</main>
+
+<div class="submit-bar">
+  <div class="progress"><span id="progress">0 / 0</span> 回答済み</div>
+  <button class="submit" id="submit-btn">完了 → プロンプト生成</button>
+</div>
+
+<div class="toast" id="toast">コピーしたよ</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: "Q-intent-01", layer: "intent", order: 1,
+    prompt: { ja: "このサイトは何のためのもの？", en: "What is this site for?" },
+    multi: false,
+    volume: { quick: true, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "コーポレート（企業情報・ブランド発信）", en: "Corporate (company info, brand)" } },
+      { id: "b", label: { ja: "LP・プロモーション（製品/イベント告知）", en: "Landing page / promotion" } },
+      { id: "c", label: { ja: "EC・販売", en: "E-commerce / shop" } },
+      { id: "d", label: { ja: "ポートフォリオ・作品集", en: "Portfolio / works" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-intent-02", layer: "intent", order: 2,
+    prompt: { ja: "主なターゲット層は？", en: "Who is the main audience?" },
+    multi: false,
+    volume: { quick: true, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "10代〜20代前半（若年層）", en: "Teens to early 20s" } },
+      { id: "b", label: { ja: "20代後半〜30代（中堅層）", en: "Late 20s to 30s" } },
+      { id: "c", label: { ja: "40代以上（成熟層）", en: "40s and above" } },
+      { id: "d", label: { ja: "業界プロ・専門家（年齢不問）", en: "Industry pros / specialists" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-intent-03", layer: "intent", order: 3,
+    prompt: { ja: "訪問して3秒で受け取ってほしい第一印象は？", en: "What single impression do you want visitors to feel in 3 seconds?" },
+    multi: false,
+    volume: { quick: true, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "信頼感・誠実", en: "Trust / sincerity" } },
+      { id: "b", label: { ja: "神秘性・特別感", en: "Mystique / special" } },
+      { id: "c", label: { ja: "楽しさ・遊び心", en: "Fun / playful" } },
+      { id: "d", label: { ja: "静けさ・余白", en: "Calm / minimal" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-intent-04", layer: "intent", order: 4,
+    prompt: { ja: "同業・類似サイトでよく見る表現で「避けたい」ものはある？", en: "What common expression in similar sites do you want to avoid?" },
+    multi: false,
+    volume: { quick: false, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "ありきたりな透明感・明るさ", en: "Generic transparency / brightness" } },
+      { id: "b", label: { ja: "過剰な装飾・エフェクト", en: "Excessive decoration / effects" } },
+      { id: "c", label: { ja: "冷たすぎる無機質さ", en: "Too cold / sterile" } },
+      { id: "d", label: { ja: "特に避けたい表現はない", en: "No specific avoidance" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-mood-01", layer: "mood", order: 1,
+    prompt: { ja: "サイト全体の明るさは？", en: "What's the overall brightness baseline?" },
+    multi: false,
+    volume: { quick: true, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "暗色ベース（黒〜深い色を背景に）", en: "Dark base (black or deep color background)" } },
+      { id: "b", label: { ja: "明色ベース（白〜淡い色を背景に）", en: "Light base (white or pale color background)" } },
+      { id: "c", label: { ja: "中間（グレー・ベージュ等の中明度）", en: "Mid-tone (gray, beige, etc.)" } },
+      { id: "d", label: { ja: "グラデーション主体", en: "Gradient-driven" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-mood-02", layer: "mood", order: 2,
+    prompt: { ja: "配色の温度感は？", en: "What's the color temperature?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "暖色寄り（赤・オレンジ・ベージュ・ピンク）", en: "Warm (red, orange, beige, pink)" } },
+      { id: "b", label: { ja: "寒色寄り（青・緑・紫）", en: "Cool (blue, green, purple)" } },
+      { id: "c", label: { ja: "中性（モノクロ・グレー・無彩色）", en: "Neutral (monochrome, gray, achromatic)" } },
+      { id: "d", label: { ja: "暖寒の対比（両極を意図的に組む）", en: "Warm-cool contrast" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-mood-03", layer: "mood", order: 3,
+    prompt: { ja: "サイトのエネルギー感は？", en: "What's the energy level?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "静寂（calm・余白多め・動きを抑える）", en: "Calm (lots of whitespace, restrained motion)" } },
+      { id: "b", label: { ja: "表現的（expressive・適度な動き・印象付け）", en: "Expressive (moderate motion, memorable)" } },
+      { id: "c", label: { ja: "劇的（theatrical・大きな動き・没入感）", en: "Theatrical (big motion, immersive)" } },
+      { id: "d", label: { ja: "機能優先（情報伝達最優先）", en: "Function-first (info-priority)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-mood-04", layer: "mood", order: 4,
+    prompt: { ja: "サイトの形式感は？", en: "What's the level of formality?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "フォーマル（堅実・きっちり・敬体）", en: "Formal (firm, structured, polite)" } },
+      { id: "b", label: { ja: "カジュアル（親しみやすさ・ゆるさ）", en: "Casual (friendly, relaxed)" } },
+      { id: "c", label: { ja: "プレイフル（遊び心・ユーモア）", en: "Playful (humor, whimsy)" } },
+      { id: "d", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-visual-01", layer: "visual", order: 1,
+    prompt: { ja: "配色の組み立て方は？", en: "How should colors be composed?" },
+    multi: false,
+    volume: { quick: true, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "モノクロ（無彩色のみ）", en: "Monochrome (achromatic only)" } },
+      { id: "b", label: { ja: "2色構成（メイン + 差し色1色）", en: "Duotone (main + 1 accent)" } },
+      { id: "c", label: { ja: "多色（3色以上の意図的なパレット）", en: "Vivid palette (3+ colors)" } },
+      { id: "d", label: { ja: "グラデーション主体", en: "Gradient-driven" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-visual-02", layer: "visual", order: 2,
+    prompt: { ja: "差し色（アクセント）の使い方は？", en: "How should the accent color be used?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "単一の差し色を強く効かせる", en: "One strong accent" } },
+      { id: "b", label: { ja: "2色のアクセント（主・副）を使い分け", en: "Two accents (primary + secondary)" } },
+      { id: "c", label: { ja: "差し色なし（モノトーンで完結）", en: "No accent (monotone only)" } },
+      { id: "d", label: { ja: "グラデーションアクセント", en: "Gradient accent" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-visual-03", layer: "visual", order: 3,
+    prompt: { ja: "全体の質感は？", en: "What's the overall texture feel?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "マット（フラット・影なし）", en: "Matte (flat, no shadow)" } },
+      { id: "b", label: { ja: "光沢（gloss・グラデ・反射感）", en: "Glossy (gradient, reflective)" } },
+      { id: "c", label: { ja: "テクスチャあり（紙・布・ノイズ）", en: "Textured (paper, fabric, noise)" } },
+      { id: "d", label: { ja: "ガラス感（blur / backdrop-filter 多用）", en: "Glass (blur / backdrop-filter heavy)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-type-01", layer: "typography", order: 1,
+    prompt: { ja: "文字組みの主軸は？", en: "What's the primary type style?" },
+    multi: false,
+    volume: { quick: false, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "serif / 明朝 主役", en: "Serif / mincho leading" } },
+      { id: "b", label: { ja: "sans / ゴシック 主役", en: "Sans / gothic leading" } },
+      { id: "c", label: { ja: "混在（見出しserif + 本文sans 等）", en: "Mixed (serif heading + sans body)" } },
+      { id: "d", label: { ja: "装飾的（手書き・display・特殊フォント）", en: "Decorative (handwritten, display, specialty)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-type-02", layer: "typography", order: 2,
+    prompt: { ja: "日本語フォントの系統は？", en: "What style for Japanese fonts?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "明朝（伝統・上品・editorial）", en: "Mincho (traditional, elegant, editorial)" } },
+      { id: "b", label: { ja: "ゴシック（現代・読みやすさ・実用）", en: "Gothic (modern, readable, practical)" } },
+      { id: "c", label: { ja: "丸ゴシック（親しみやすい・rounded）", en: "Rounded gothic (friendly)" } },
+      { id: "d", label: { ja: "日本語フォント不要（英字のみで完結）", en: "Japanese not needed (English only)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-motion-01", layer: "motion", order: 1,
+    prompt: { ja: "アニメーションのテンポ感は？", en: "What's the animation tempo?" },
+    multi: false,
+    volume: { quick: false, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "素早い（0.2s前後・反応早く軽快）", en: "Fast (~0.2s, responsive, snappy)" } },
+      { id: "b", label: { ja: "中庸（0.4〜0.8s・標準的）", en: "Medium (0.4-0.8s, standard)" } },
+      { id: "c", label: { ja: "ゆったり（1.5〜2s・余裕・贅沢）", en: "Slow (1.5-2s, relaxed, luxurious)" } },
+      { id: "d", label: { ja: "アニメ最小限（必要箇所のみ・無くてもOK）", en: "Minimal motion (only essentials)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-motion-02", layer: "motion", order: 2,
+    prompt: { ja: "アニメーションの性格は？", en: "What's the motion character?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "控えめ（subtle・気付かれない程度のフィードバック）", en: "Subtle (barely-noticeable feedback)" } },
+      { id: "b", label: { ja: "表現的（expressive・印象に残る動き）", en: "Expressive (memorable motion)" } },
+      { id: "c", label: { ja: "劇的（theatrical・物語的・没入演出）", en: "Theatrical (cinematic, story-driven)" } },
+      { id: "d", label: { ja: "機械的（precise・動きの形が明快）", en: "Mechanical (precise, clearly-shaped)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-motion-03", layer: "motion", order: 3,
+    prompt: { ja: "アニメーション実装の手段はどこまで許容？", en: "How far can animation implementation reach?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "CSS + IntersectionObserver のみ（外部依存ゼロ）", en: "CSS + IntersectionObserver only (no external deps)" } },
+      { id: "b", label: { ja: "GSAP 系を許容", en: "GSAP allowed" } },
+      { id: "c", label: { ja: "WebGL / Three.js も含めて自由", en: "WebGL / Three.js anything goes" } },
+      { id: "d", label: { ja: "必要最小限（要件次第で都度判断）", en: "Minimum necessary (decide per requirement)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-component-01", layer: "component", order: 1,
+    prompt: { ja: "レイアウトの基本型は？", en: "What's the base layout type?" },
+    multi: false,
+    volume: { quick: false, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "editorial（文字主役・余白多め・雑誌風）", en: "Editorial (text-driven, magazine-style)" } },
+      { id: "b", label: { ja: "card-grid（カード一覧主体・並列構造）", en: "Card-grid (card-list, parallel structure)" } },
+      { id: "c", label: { ja: "full-bleed（画面いっぱいのKV・縦長サイト）", en: "Full-bleed (screen-wide KV, long scroll)" } },
+      { id: "d", label: { ja: "sectioned（セクション区切り明快・伝統的）", en: "Sectioned (clearly-separated sections, traditional)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-component-02", layer: "component", order: 2,
+    prompt: { ja: "必須となるパーツ群は？（複数選択可）", en: "Which parts are required? (multi-select)" },
+    multi: true,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "入場演出系（page-loader / opening-sequence / page-transition）", en: "Entry effects (loader / opening / transition)" } },
+      { id: "b", label: { ja: "ナビ系（nav-header / nav-link / sp-menu）", en: "Navigation (nav-header / nav-link / sp-menu)" } },
+      { id: "c", label: { ja: "KV系（kv-hero / hero-title / scroll-indicator）", en: "Key visual (kv-hero / hero-title / scroll-indicator)" } },
+      { id: "d", label: { ja: "コンテンツ系（section-heading / card-item / cta-button）", en: "Content (section-heading / card-item / cta-button)" } },
+      { id: "e", label: { ja: "その他（自由入力で個別パーツ名を列挙）", en: "Other (list specific part names)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-tech-01", layer: "technical", order: 1,
+    prompt: { ja: "優先するデバイス環境は？", en: "Which device environment is the priority?" },
+    multi: false,
+    volume: { quick: false, standard: true, deep: true },
+    options: [
+      { id: "a", label: { ja: "モバイル優先（SP UX が最重要）", en: "Mobile-first (SP UX top priority)" } },
+      { id: "b", label: { ja: "デスクトップ優先（PC UX が最重要）", en: "Desktop-first (PC UX top priority)" } },
+      { id: "c", label: { ja: "両立（SP/PC 等しく作り込む）", en: "Both equally" } },
+      { id: "d", label: { ja: "SP 専用（PC 表示は最低限）", en: "SP only (minimal PC support)" } },
+      { id: "e", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  },
+  {
+    id: "Q-tech-02", layer: "technical", order: 2,
+    prompt: { ja: "外部ライブラリ・サービスの許容度は？", en: "How tolerant of external libraries / services?" },
+    multi: false,
+    volume: { quick: false, standard: false, deep: true },
+    options: [
+      { id: "a", label: { ja: "依存ゼロ（CDN含めて外部リソース禁止）", en: "Zero deps (no CDN, no external resources)" } },
+      { id: "b", label: { ja: "限定的（Google Fonts / 軽量CDNのみ可）", en: "Limited (Google Fonts / light CDN only)" } },
+      { id: "c", label: { ja: "自由（GSAP / Three.js 等含めて目的次第）", en: "Free (GSAP / Three.js etc. as needed)" } },
+      { id: "d", label: { ja: "その他（自由入力）", en: "Other (free input)" }, freetext: true }
+    ]
+  }
+];
+
+const I18N = {
+  ja: {
+    introTitle: "設問に答えていくと、最後に Claude に渡す自然文プロンプトが生成されるよ",
+    introBody: "迷ったら各設問の「AI に相談」ボタンで Claude に壁打ちできる。「その他（自由入力）」も使ってOK。",
+    introHint: "回答が完了したら、ページ下部の「完了 → プロンプト生成」を押してね。",
+    freeNoteLabel: "補足（自由記述・任意）",
+    freeNotePh: "設問に収まらない要望・参考サイト名・避けたい表現など",
+    progress: "回答済み",
+    submit: "完了 → プロンプト生成",
+    consult: "AIに相談",
+    answered: "回答済み",
+    outputTitle: "プロンプト生成完了 — クリップボードにコピーしたよ。Claude に貼り付けてね",
+    copied: "コピーしたよ",
+    consultCopied: "相談プロンプトをコピーしたよ。Claude に貼り付けて壁打ちしてね",
+    promptHeader: "# Design Brief",
+    settings: "設定",
+    answerLog: "回答ログ",
+    options: "提示された選択肢",
+    selected: "選択",
+    freenoteSection: "ユーザー追記",
+    consultMarker: "【相談】",
+    consultBody: "自分で決められないから相談したい。",
+    confirmVolumeChange: "ボリュームを変えると現在の回答がすべて消えます。続行しますか？"
+  },
+  en: {
+    introTitle: "Answer the questions, then a natural-prose prompt for Claude will be generated at the end",
+    introBody: "If unsure on a question, use the 'Consult AI' button to discuss with Claude. 'Other (free input)' is fine too.",
+    introHint: "When done, press 'Done → Generate Prompt' at the bottom.",
+    freeNoteLabel: "Free note (optional)",
+    freeNotePh: "Anything that doesn't fit the questions — reference sites, things to avoid, etc.",
+    progress: "answered",
+    submit: "Done → Generate Prompt",
+    consult: "Consult AI",
+    answered: "answered",
+    outputTitle: "Prompt generated — copied to clipboard. Paste it into Claude.",
+    copied: "Copied",
+    consultCopied: "Consult prompt copied. Paste it into Claude to discuss.",
+    promptHeader: "# Design Brief",
+    settings: "Settings",
+    answerLog: "Answer log",
+    options: "Options shown",
+    selected: "Selected",
+    freenoteSection: "User notes",
+    consultMarker: "[Consult]",
+    consultBody: "I can't decide on this one — let's discuss.",
+    confirmVolumeChange: "Changing the volume will discard all current answers. Continue?"
+  }
+};
+
+const state = {
+  lang: "ja",
+  volume: "standard",
+  answers: {}
+};
+
+function readHash() {
+  const hash = location.hash.replace(/^#/, "");
+  const params = {};
+  hash.split("&").forEach(pair => {
+    const [k, v] = pair.split("=");
+    if (k) params[decodeURIComponent(k)] = decodeURIComponent(v || "");
+  });
+  return params;
+}
+
+function applyHash() {
+  const p = readHash();
+  if (p.volume && ["quick", "standard", "deep"].includes(p.volume)) state.volume = p.volume;
+  if (p.lang && ["ja", "en"].includes(p.lang)) state.lang = p.lang;
+}
+
+function getQuestionsForVolume() {
+  return QUESTIONS.filter(q => q.volume[state.volume]);
+}
+
+function t(key) { return I18N[state.lang][key]; }
+
+// 注記: 本ファイル内で `innerHTML` に流し込む文字列は、すべて QUESTIONS 配列のリテラル
+// （prompt / label / id / layer）に限定されています。hash パラメータや user 入力の値は
+// 一切 innerHTML に注入していません。将来 hash 由来や DOM 経由の動的データを扱う場合は
+// textContent / setAttribute に切り替えるか、入念にエスケープしてください。
+function renderQuestions() {
+  const root = document.getElementById("questions");
+  root.innerHTML = "";
+  const list = getQuestionsForVolume();
+  list.forEach((q, idx) => {
+    const card = document.createElement("div");
+    card.className = "question";
+    card.dataset.qid = q.id;
+
+    const meta = document.createElement("div");
+    meta.className = "q-meta";
+    meta.innerHTML = `<span class="qid">${q.id}</span><span class="layer-tag">${q.layer}</span><span>${idx + 1} / ${list.length}</span>`;
+    card.appendChild(meta);
+
+    const prompt = document.createElement("div");
+    prompt.className = "prompt";
+    prompt.textContent = q.prompt[state.lang];
+    card.appendChild(prompt);
+
+    const opts = document.createElement("div");
+    opts.className = "options";
+    q.options.forEach(opt => {
+      const wrap = document.createElement("div");
+      wrap.className = "option";
+      const inputType = q.multi ? "checkbox" : "radio";
+      const inputId = `${q.id}-${opt.id}`;
+      const label = opt.label[state.lang];
+      wrap.innerHTML = `
+        <input type="${inputType}" name="${q.id}" id="${inputId}" value="${opt.id}">
+        <label for="${inputId}">${label}</label>
+      `;
+      const input = wrap.querySelector("input");
+      input.addEventListener("change", () => onAnswerChange(q, opt, wrap));
+      if (opt.freetext) {
+        const ta = document.createElement("textarea");
+        ta.className = "freetext-input";
+        ta.placeholder = state.lang === "ja" ? "自由に入力" : "Free input";
+        ta.style.display = "none";
+        ta.addEventListener("input", () => onFreetextChange(q, opt, ta));
+        wrap.querySelector("label").appendChild(document.createElement("br"));
+        wrap.querySelector("label").appendChild(ta);
+        wrap.dataset.hasFreetext = "true";
+      }
+      opts.appendChild(wrap);
+    });
+    card.appendChild(opts);
+
+    const actions = document.createElement("div");
+    actions.className = "q-actions";
+    const consultBtn = document.createElement("button");
+    consultBtn.className = "ai-consult";
+    consultBtn.textContent = t("consult");
+    consultBtn.addEventListener("click", () => copyConsultPrompt(q));
+    actions.appendChild(consultBtn);
+    card.appendChild(actions);
+
+    root.appendChild(card);
+  });
+  updateProgress();
+}
+
+function onAnswerChange(q, opt, wrap) {
+  const card = document.querySelector(`.question[data-qid="${q.id}"]`);
+  if (q.multi) {
+    state.answers[q.id] = state.answers[q.id] || { ids: [], freetext: {} };
+    const checked = wrap.querySelector("input").checked;
+    const ids = state.answers[q.id].ids;
+    if (checked && !ids.includes(opt.id)) ids.push(opt.id);
+    if (!checked) state.answers[q.id].ids = ids.filter(i => i !== opt.id);
+    if (opt.freetext) {
+      const ta = wrap.querySelector(".freetext-input");
+      ta.style.display = checked ? "block" : "none";
+    }
+  } else {
+    state.answers[q.id] = { id: opt.id, freetext: "" };
+    card.querySelectorAll(".option").forEach(o => o.classList.remove("checked"));
+    card.querySelectorAll(".freetext-input").forEach(ta => ta.style.display = "none");
+    if (opt.freetext) {
+      wrap.querySelector(".freetext-input").style.display = "block";
+    }
+  }
+  wrap.classList.toggle("checked", wrap.querySelector("input").checked);
+  updateProgress();
+}
+
+function onFreetextChange(q, opt, ta) {
+  if (q.multi) {
+    state.answers[q.id] = state.answers[q.id] || { ids: [], freetext: {} };
+    state.answers[q.id].freetext[opt.id] = ta.value;
+  } else {
+    state.answers[q.id] = state.answers[q.id] || { id: opt.id, freetext: "" };
+    state.answers[q.id].freetext = ta.value;
+  }
+}
+
+function updateProgress() {
+  const list = getQuestionsForVolume();
+  const answered = list.filter(q => {
+    const a = state.answers[q.id];
+    if (!a) return false;
+    if (q.multi) return a.ids && a.ids.length > 0;
+    return !!a.id;
+  }).length;
+  document.getElementById("progress").innerHTML = `<strong>${answered}</strong> / ${list.length}`;
+  document.getElementById("submit-btn").disabled = answered === 0;
+}
+
+function copyConsultPrompt(q) {
+  const lines = [];
+  lines.push(t("consultMarker"));
+  lines.push(`Q: ${q.prompt[state.lang]}`);
+  lines.push(state.lang === "ja" ? "選択肢:" : "Options:");
+  q.options.forEach(opt => {
+    lines.push(`  ${opt.id}) ${opt.label[state.lang]}`);
+  });
+  lines.push("");
+  lines.push(t("consultBody"));
+  const text = lines.join("\n");
+  copyToClipboard(text);
+  showToast(t("consultCopied"));
+}
+
+function generatePrompt() {
+  const list = getQuestionsForVolume();
+  const lines = [];
+  lines.push(`${t("promptHeader")} — ${new Date().toISOString()}`);
+  lines.push("");
+  lines.push(`## ${t("settings")}`);
+  lines.push(`- Volume: ${state.volume}`);
+  lines.push(`- Language: ${state.lang}`);
+  lines.push("");
+  lines.push(`## ${t("answerLog")}`);
+  lines.push("");
+  list.forEach(q => {
+    const a = state.answers[q.id];
+    lines.push(`### ${q.id}: ${q.prompt[state.lang]}`);
+    lines.push(`- ${t("options")}:`);
+    q.options.forEach(opt => {
+      lines.push(`  - ${opt.id.toUpperCase()}. ${opt.label[state.lang]}`);
+    });
+    if (!a) {
+      lines.push(`- ${t("selected")}: (skipped)`);
+    } else if (q.multi) {
+      const picked = (a.ids || []).map(i => i.toUpperCase()).join(", ");
+      lines.push(`- ${t("selected")}: ${picked || "(none)"}`);
+      Object.entries(a.freetext || {}).forEach(([oid, txt]) => {
+        if (txt) lines.push(`  - ${oid.toUpperCase()} freetext: ${txt}`);
+      });
+    } else {
+      lines.push(`- ${t("selected")}: ${a.id.toUpperCase()}`);
+      if (a.freetext) lines.push(`  - freetext: ${a.freetext}`);
+    }
+    lines.push("");
+  });
+  const note = document.getElementById("free-note").value.trim();
+  if (note) {
+    lines.push(`## ${t("freenoteSection")}`);
+    lines.push(note);
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+
+function showOutput(text) {
+  let box = document.getElementById("output-box");
+  if (!box) {
+    box = document.createElement("div");
+    box.className = "output";
+    box.id = "output-box";
+    box.innerHTML = `
+      <h2 id="output-title"></h2>
+      <textarea readonly id="output-text"></textarea>
+      <p class="copied" id="output-copied"></p>
+    `;
+    document.querySelector("main").appendChild(box);
+  }
+  document.getElementById("output-title").textContent = t("outputTitle");
+  document.getElementById("output-text").value = text;
+  document.getElementById("output-copied").textContent = "✓ " + t("copied");
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function applyLang() {
+  document.documentElement.lang = state.lang;
+  document.getElementById("intro-title").textContent = t("introTitle");
+  document.getElementById("intro-body").textContent = t("introBody");
+  document.getElementById("intro-hint").textContent = t("introHint");
+  document.getElementById("free-note-label").textContent = t("freeNoteLabel");
+  document.getElementById("free-note").placeholder = t("freeNotePh");
+  document.getElementById("submit-btn").textContent = t("submit");
+  renderQuestions();
+}
+
+function init() {
+  applyHash();
+  document.getElementById("volume-select").value = state.volume;
+  document.getElementById("lang-select").value = state.lang;
+  document.getElementById("volume-select").addEventListener("change", e => {
+    const hasAnswers = Object.keys(state.answers).length > 0;
+    if (hasAnswers && !confirm(t("confirmVolumeChange"))) {
+      e.target.value = state.volume;
+      return;
+    }
+    state.volume = e.target.value;
+    state.answers = {};
+    renderQuestions();
+  });
+  document.getElementById("lang-select").addEventListener("change", e => {
+    state.lang = e.target.value;
+    applyLang();
+  });
+  document.getElementById("submit-btn").addEventListener("click", () => {
+    const text = generatePrompt();
+    copyToClipboard(text);
+    showOutput(text);
+  });
+  applyLang();
+}
+
+init();
+</script>
+</body>
+</html>

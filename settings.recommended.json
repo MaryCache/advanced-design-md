@@ -1,0 +1,22 @@
+{
+  "_comment": "design-workflow 推奨権限。`~/.claude/settings.json` の permissions.allow に手動マージしてください。マージ後はクイズ HTTP 起動・extractor の自動セットアップで都度の確認プロンプトが出なくなります。任意 PID への kill / 任意 URL への curl / 任意プロセスへの pkill は配布物としては行き過ぎのため許可しません（必要時は都度確認に任せます）。",
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p:*)",
+      "Bash(cp:*)",
+      "Bash(stat:*)",
+      "Bash(test:*)",
+      "Bash(node --version)",
+      "Bash(node scripts/fetch.js:*)",
+      "Bash(npm install)",
+      "Bash(npx --yes playwright install:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(python3 -m http.server:*)",
+      "Bash(npx --yes http-server:*)",
+      "Bash(curl -sI http://localhost:*)",
+      "Bash(curl -s -o /dev/null http://localhost:*)",
+      "Bash(pkill -f 'python3 -m http.server':*)",
+      "Bash(pkill -f 'npx --yes http-server':*)"
+    ]
+  }
+}
