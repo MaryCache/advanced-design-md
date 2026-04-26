@@ -61,12 +61,12 @@ grep -q "python3 -m http.server" ~/.claude/settings.json 2>/dev/null && echo INS
 `settings.recommended.json` の場所はインストール形態（symlink / 直接配置 / 移設後）で変わるため、以下を上から順に試して **最初に見つかったもの** を採用します。
 
 ```
-1. 環境変数 $DESIGN_WORKFLOW_DIR が設定されていれば $DESIGN_WORKFLOW_DIR/settings.recommended.json
+1. 環境変数 $ADVANCED_DESIGN_MD_DIR が設定されていれば $ADVANCED_DESIGN_MD_DIR/settings.recommended.json
 2. このスキル本体の実体パス（symlink ならその参照先）から `../../settings.recommended.json`
-   - 解決例: `readlink -f ~/.claude/skills/design-extractor` → `/home/user/design-workflow/skills/design-extractor`
-   - その親の親 = `/home/user/design-workflow/`
-3. ホーム直下の慣例パス: `~/design-workflow/settings.recommended.json`
-4. カレントディレクトリ: `./settings.recommended.json` および `./design-workflow/settings.recommended.json`
+   - 解決例: `readlink -f ~/.claude/skills/design-extractor` → `/home/user/advanced-design-md/skills/design-extractor`
+   - その親の親 = `/home/user/advanced-design-md/`
+3. ホーム直下の慣例パス: `~/advanced-design-md/settings.recommended.json`
+4. カレントディレクトリ: `./settings.recommended.json` および `./advanced-design-md/settings.recommended.json`
 ```
 
 いずれにも見つからない場合は手動マージを案内します。
@@ -76,8 +76,8 @@ settings.recommended.json の場所を自動検出できませんでした。
 リポジトリの settings.recommended.json を手動で開き、permissions.allow を
 ~/.claude/settings.json にマージしてください。
 
-または、$DESIGN_WORKFLOW_DIR にリポジトリのパスを設定すると次回から自動検出されます:
-export DESIGN_WORKFLOW_DIR="$HOME/design-workflow"
+または、$ADVANCED_DESIGN_MD_DIR にリポジトリのパスを設定すると次回から自動検出されます:
+export ADVANCED_DESIGN_MD_DIR="$HOME/advanced-design-md"
 ```
 
 ---

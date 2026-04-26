@@ -5,7 +5,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-D97757?logo=anthropic&logoColor=white)](https://claude.com/claude-code)
 [![Playwright](https://img.shields.io/badge/Playwright-1.59-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
 
-[日本語版: README.md](README.md) ／ Casual quick-start (Japanese only): [QUICKSTART.md](QUICKSTART.md)
+[日本語版: README.md](README.md) ／ Casual quick-start: [QUICKSTART.en.md](QUICKSTART.en.md) (English) / [QUICKSTART.md](QUICKSTART.md) (日本語)
 
 A toolkit consisting of two Claude Code skills, designed to semi-automatically generate design specifications (DESIGN.md).
 
@@ -53,10 +53,10 @@ For authentication, follow the instructions displayed when starting `claude`.
 ### Step 2. Clone the repository
 
 ```bash
-git clone <this-repo-url> ~/design-workflow
+git clone https://github.com/MaryCache/advanced-design-md.git ~/advanced-design-md
 ```
 
-The clone destination is arbitrary. This document assumes `~/design-workflow`.
+The clone destination is arbitrary. This document assumes `~/advanced-design-md`.
 
 ### Step 3. Register the skills with Claude Code
 
@@ -64,8 +64,8 @@ Place symbolic links under `~/.claude/skills/` so that Claude Code recognises th
 
 ```bash
 mkdir -p ~/.claude/skills
-ln -s ~/design-workflow/skills/design-extractor ~/.claude/skills/design-extractor
-ln -s ~/design-workflow/skills/design-creator   ~/.claude/skills/design-creator
+ln -s ~/advanced-design-md/skills/design-extractor ~/.claude/skills/design-extractor
+ln -s ~/advanced-design-md/skills/design-creator   ~/.claude/skills/design-creator
 ```
 
 Run `ls ~/.claude/skills/` and confirm that two links are listed.
@@ -77,7 +77,7 @@ This is required when design-extractor fetches a URL. The step may be omitted: C
 To install manually:
 
 ```bash
-cd ~/design-workflow/skills/design-extractor
+cd ~/advanced-design-md/skills/design-extractor
 npm install
 npx playwright install chromium
 ```
@@ -86,7 +86,7 @@ npx playwright install chromium
 
 Both skills internally invoke commands such as `mkdir`, `cp`, `python3 -m http.server`, and `npm install`. Claude Code displays a `Do you want to proceed?` prompt for each such invocation, which interrupts the workflow if left unaddressed.
 
-On first invocation, Claude will propose merging the recommended permissions. Responding `yes` applies the configuration automatically. To apply manually, merge the `permissions.allow` array from `~/design-workflow/settings.recommended.json` into the corresponding key in `~/.claude/settings.json`.
+On first invocation, Claude will propose merging the recommended permissions. Responding `yes` applies the configuration automatically. To apply manually, merge the `permissions.allow` array from `~/advanced-design-md/settings.recommended.json` into the corresponding key in `~/.claude/settings.json`.
 
 ```jsonc
 // Example: ~/.claude/settings.json
@@ -257,7 +257,7 @@ DESIGN.md and INTERPRETED.md share a common section structure (Colors / Typograp
 | Symptom | Resolution |
 |---|---|
 | `node: command not found` | Install Node.js 18 or later |
-| `playwright not found` | Run `cd ~/design-workflow/skills/design-extractor && npm install && npx playwright install chromium` |
+| `playwright not found` | Run `cd ~/advanced-design-md/skills/design-extractor && npm install && npx playwright install chromium` |
 | Frequent confirmation prompts | Apply the permission merge described in Step 5 |
 | Quiz fails to open with `ERR_FILE_NOT_FOUND` | The skill should launch `python3 -m http.server` automatically. If not, run `cd ~/.claude/outbox && python3 -m http.server 8765` manually |
 | Claude does not recognise the skills | Verify the symlinks via `ls ~/.claude/skills/` and restart Claude Code |
@@ -298,7 +298,7 @@ The completion prompt records every option, including those not selected. This a
 ## Directory Structure
 
 ```
-design-workflow/
+advanced-design-md/
 ├── README.md                          ← Japanese version
 ├── README.en.md                       ← This document
 ├── settings.recommended.json          ← Recommended permissions (for manual merge)

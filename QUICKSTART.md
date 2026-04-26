@@ -1,6 +1,6 @@
 # かんたんせつめいしょ
 
-> しっかりした README は[こちら](README.md)。ここは「とりあえず動かしたい人」向けの軽量版です。
+> [English version: QUICKSTART.en.md](QUICKSTART.en.md) ／ しっかりした README は[こちら](README.md)。ここは「とりあえず動かしたい人」向けの軽量版です。
 
 ---
 
@@ -47,25 +47,25 @@ claude --version
 ### ② このリポジトリを取ってくる
 
 ```bash
-git clone <this-repo-url> ~/design-workflow
+git clone https://github.com/MaryCache/advanced-design-md.git ~/advanced-design-md
 ```
 
-クローン先は好きな場所で OK。以降 `~/design-workflow` 前提で書きます。
+クローン先は好きな場所で OK。以降 `~/advanced-design-md` 前提で書きます。
 
 ### ③ Claude Code にスキルを教える
 
 ```bash
 mkdir -p ~/.claude/skills
-ln -s ~/design-workflow/skills/design-extractor ~/.claude/skills/design-extractor
-ln -s ~/design-workflow/skills/design-creator   ~/.claude/skills/design-creator
+ln -s ~/advanced-design-md/skills/design-extractor ~/.claude/skills/design-extractor
+ln -s ~/advanced-design-md/skills/design-creator   ~/.claude/skills/design-creator
 ```
 
-> **`ln -s` ってなに**: ショートカット作成です。`~/.claude/skills/` の中に「本体は `~/design-workflow/skills/...` ですよ」というラベルだけ置く感じ。失敗したら `rm ~/.claude/skills/design-extractor` で消すだけ、本体は無事です。
+> **`ln -s` ってなに**: ショートカット作成です。`~/.claude/skills/` の中に「本体は `~/advanced-design-md/skills/...` ですよ」というラベルだけ置く感じ。失敗したら `rm ~/.claude/skills/design-extractor` で消すだけ、本体は無事です。
 
 ### ④ Claude を起動して一言投げる
 
 ```bash
-cd ~/design-workflow
+cd ~/advanced-design-md
 claude
 ```
 
@@ -165,7 +165,7 @@ Claude:   (1〜2 分待つ)
 | スキル登録(symlink) | `~/.claude/skills/design-extractor` `~/.claude/skills/design-creator` |
 | 抽出の出力(URL → md) | `~/design-library/sites/{スラグ}/`(環境変数で変更可) |
 | クイズと DESIGN.md | `~/.claude/outbox/`(環境変数で変更可) |
-| スキル本体 | `~/design-workflow/skills/` |
+| スキル本体 | `~/advanced-design-md/skills/` |
 
 ---
 
@@ -192,7 +192,7 @@ rm ~/.claude/skills/design-extractor
 rm ~/.claude/skills/design-creator
 
 # リポジトリ削除
-rm -rf ~/design-workflow
+rm -rf ~/advanced-design-md
 
 # Claude Code 自体を消す
 npm uninstall -g @anthropic-ai/claude-code

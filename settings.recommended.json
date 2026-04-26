@@ -1,5 +1,5 @@
 {
-  "_comment": "design-workflow 推奨権限。`~/.claude/settings.json` の permissions.allow に手動マージしてください。マージ後はクイズ HTTP 起動・extractor の自動セットアップで都度の確認プロンプトが出なくなります。任意 PID への kill / 任意 URL への curl / 任意プロセスへの pkill は配布物としては行き過ぎのため許可しません（必要時は都度確認に任せます）。",
+  "_comment": "advanced-design-md 推奨権限。`~/.claude/settings.json` の permissions.allow に手動マージしてください。マージ後はクイズ HTTP 起動・extractor の自動セットアップで都度の確認プロンプトが出なくなります。任意 PID への kill / 任意 URL への curl / 任意プロセスへの pkill は配布物としては行き過ぎのため許可しません（必要時は都度確認に任せます）。",
   "permissions": {
     "allow": [
       "Bash(mkdir -p:*)",
